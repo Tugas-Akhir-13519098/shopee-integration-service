@@ -70,7 +70,7 @@ func IsFailResponse(resp *http.Response, itemResponse model.ItemResponse) (bool,
 	isFailStatus := (resp.StatusCode < 200 || resp.StatusCode > 299)
 
 	if error != "" {
-		return true, itemResponse.Error
+		return true, itemResponse.Message
 	} else if isFailStatus {
 		return true, ""
 	} else {
