@@ -12,6 +12,7 @@ type Config struct {
 
 	ShopeeURL      string `envconfig:"SHOPEE_URL" default:"https://fb724b04-b7cc-47d0-bba0-21e93dda67b8.mock.pstmn.io/api/v2/product/"`
 	OmnichannelURL string `envconfig:"OMNICHANNEL_URL" default:"http://localhost:8080/api/v1/product/marketplace/"`
+	AdminToken     string `envconfig:"ADMIN_TOKEN" default:""`
 }
 
 // Get to get defined configuration
