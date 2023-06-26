@@ -40,7 +40,7 @@ func (ps *productService) ConsumeProductMessages() {
 		}
 
 		// Change kafka message from byte to struct
-		var productMessage *model.ProductMessage
+		var productMessage *model.KafkaProductMessage
 		err = json.Unmarshal(msg.Value, &productMessage)
 		if err != nil {
 			fmt.Println("Can't unmarshal the kafka message")
@@ -49,21 +49,24 @@ func (ps *productService) ConsumeProductMessages() {
 
 		if productMessage.Method == model.CREATE {
 			createProductBody := util.ConvertProductToCreateProductRequest(productMessage)
-			url := cfg.ShopeeURL + "add_item?partner_id=1&shop_id=1"
-			resp, _ := util.SendPostRequest(createProductBody, url)
-			util.AfterHTTPRequestHandler(resp, "CREATE", productMessage.ID, cfg.OmnichannelURL)
+			url := cfg.ShopeeURL + fmt.Sprintf("add_item?partner_id=%d&shop_id=%d&access_token=%s&sign=%s",
+				productMessage.ShopeePartnerID, productMessage.ShopeeShopID, productMessage.ShopeeAccessToken, productMessage.ShopeeSign)
+			resp, _ := util.SendPostRequest(createProductBody, url, "")
+			util.AfterHTTPRequestHandler(createProductBody.String(), resp, "CREATE", "POST", productMessage.ID)
 
 		} else if productMessage.Method == model.UPDATE {
 			updateProductBody := util.ConvertProductToUpdateItemRequest(productMessage)
-			url := cfg.ShopeeURL + "update_item?partner_id=1&shop_id=1"
-			resp, _ := util.SendPostRequest(updateProductBody, url)
-			util.AfterHTTPRequestHandler(resp, "UPDATE", string(msg.Key), cfg.OmnichannelURL)
+			url := cfg.ShopeeURL + fmt.Sprintf("update_item?partner_id=%d&shop_id=%d&access_token=%s&sign=%s",
+				productMessage.ShopeePartnerID, productMessage.ShopeeShopID, productMessage.ShopeeAccessToken, productMessage.ShopeeSign)
+			resp, _ := util.SendPostRequest(updateProductBody, url, "")
+			util.AfterHTTPRequestHandler(updateProductBody.String(), resp, "UPDATE", "POST", string(msg.Key))
 
 		} else { // productMessage.Method == model.DELETE
 			deleteProductBody := util.ConvertProductToDeleteItemRequest(productMessage)
-			url := cfg.ShopeeURL + "delete_item?partner_id=1&shop_id=1"
-			resp, _ := util.SendPostRequest(deleteProductBody, url)
-			util.AfterHTTPRequestHandler(resp, "DELETE", string(msg.Key), cfg.OmnichannelURL)
+			url := cfg.ShopeeURL + fmt.Sprintf("delete_item?partner_id=%d&shop_id=%d&access_token=%s&sign=%s",
+				productMessage.ShopeePartnerID, productMessage.ShopeeShopID, productMessage.ShopeeAccessToken, productMessage.ShopeeSign)
+			resp, _ := util.SendPostRequest(deleteProductBody, url, "")
+			util.AfterHTTPRequestHandler(deleteProductBody.String(), resp, "DELETE", "POST", string(msg.Key))
 		}
 	}
 }

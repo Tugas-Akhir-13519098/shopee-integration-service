@@ -8,7 +8,7 @@ import (
 	"shopee-integration-service/src/model"
 )
 
-func ConvertProductToCreateProductRequest(pm *model.ProductMessage) *bytes.Buffer {
+func ConvertProductToCreateProductRequest(pm *model.KafkaProductMessage) *bytes.Buffer {
 	product := model.CreateItemRequest{
 		OriginalPrice: float32(pm.Price),
 		Description:   pm.Description,
@@ -25,7 +25,7 @@ func ConvertProductToCreateProductRequest(pm *model.ProductMessage) *bytes.Buffe
 	return responseBody
 }
 
-func ConvertProductToUpdateItemRequest(pm *model.ProductMessage) *bytes.Buffer {
+func ConvertProductToUpdateItemRequest(pm *model.KafkaProductMessage) *bytes.Buffer {
 	product := model.UpdateItemRequest{
 		ItemID:        pm.ShopeeProductID,
 		OriginalPrice: float32(pm.Price),
@@ -41,7 +41,7 @@ func ConvertProductToUpdateItemRequest(pm *model.ProductMessage) *bytes.Buffer {
 	return responseBody
 }
 
-func ConvertProductToDeleteItemRequest(pm *model.ProductMessage) *bytes.Buffer {
+func ConvertProductToDeleteItemRequest(pm *model.KafkaProductMessage) *bytes.Buffer {
 	product := model.DeleteItemRequest{
 		ItemID: []int{pm.ShopeeProductID},
 	}
@@ -70,4 +70,18 @@ func ConvertProductIdToUpdateProductIdRequest(productID int) *bytes.Buffer {
 	responseBody := bytes.NewBuffer(body)
 
 	return responseBody
+}
+
+func ConvertToErrorMessage(method string, url string, req string, err string, status string, reqTime string) []byte {
+	message := model.KafkaErrorMessage{
+		Method:      method,
+		Url:         url,
+		RequestBody: req,
+		Error:       err,
+		Status:      status,
+		RequestTime: reqTime,
+	}
+	messageByte, _ := json.Marshal(message)
+
+	return messageByte
 }

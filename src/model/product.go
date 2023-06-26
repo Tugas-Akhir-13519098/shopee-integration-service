@@ -1,26 +1,5 @@
 package model
 
-type Method int
-
-const (
-	CREATE Method = iota
-	UPDATE
-	DELETE
-)
-
-type ProductMessage struct {
-	Method             Method
-	ID                 string
-	Name               string
-	Price              int
-	Weight             float32
-	Stock              int
-	Image              string
-	Description        string
-	TokopediaProductID int
-	ShopeeProductID    int
-}
-
 type Image struct {
 	ImageIDList []string `json:"image_id_list" binding:"required"`
 }
