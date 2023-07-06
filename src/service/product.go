@@ -52,21 +52,21 @@ func (ps *productService) ConsumeProductMessages() {
 			url := cfg.ShopeeURL + fmt.Sprintf("add_item?partner_id=%d&shop_id=%d&access_token=%s&sign=%s",
 				productMessage.ShopeePartnerID, productMessage.ShopeeShopID, productMessage.ShopeeAccessToken, productMessage.ShopeeSign)
 			resp, _ := util.SendPostRequest(createProductBody, url, "")
-			util.AfterHTTPRequestHandler(createProductBody.String(), resp, "CREATE", "POST", productMessage.ID)
+			util.AfterHTTPRequestHandler(createProductBody.String(), resp, "CREATE", "POST", productMessage.ID, url)
 
 		} else if productMessage.Method == model.UPDATE {
 			updateProductBody := util.ConvertProductToUpdateItemRequest(productMessage)
 			url := cfg.ShopeeURL + fmt.Sprintf("update_item?partner_id=%d&shop_id=%d&access_token=%s&sign=%s",
 				productMessage.ShopeePartnerID, productMessage.ShopeeShopID, productMessage.ShopeeAccessToken, productMessage.ShopeeSign)
 			resp, _ := util.SendPostRequest(updateProductBody, url, "")
-			util.AfterHTTPRequestHandler(updateProductBody.String(), resp, "UPDATE", "POST", string(msg.Key))
+			util.AfterHTTPRequestHandler(updateProductBody.String(), resp, "UPDATE", "POST", string(msg.Key), url)
 
 		} else { // productMessage.Method == model.DELETE
 			deleteProductBody := util.ConvertProductToDeleteItemRequest(productMessage)
 			url := cfg.ShopeeURL + fmt.Sprintf("delete_item?partner_id=%d&shop_id=%d&access_token=%s&sign=%s",
 				productMessage.ShopeePartnerID, productMessage.ShopeeShopID, productMessage.ShopeeAccessToken, productMessage.ShopeeSign)
 			resp, _ := util.SendPostRequest(deleteProductBody, url, "")
-			util.AfterHTTPRequestHandler(deleteProductBody.String(), resp, "DELETE", "POST", string(msg.Key))
+			util.AfterHTTPRequestHandler(deleteProductBody.String(), resp, "DELETE", "POST", string(msg.Key), url)
 		}
 	}
 }

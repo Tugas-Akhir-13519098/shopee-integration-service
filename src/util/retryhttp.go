@@ -93,7 +93,7 @@ func NewRetryClient() *retryablehttp.Client {
 	return retryClient
 }
 
-func AfterHTTPRequestHandler(req string, resp *http.Response, method string, httpMethod string, productID string) {
+func AfterHTTPRequestHandler(req string, resp *http.Response, method string, httpMethod string, productID string, url string) {
 	itemResponse := ConvertResponseToItemResponse(resp.Body)
 	IsFailResponse, failDataRow := IsFailResponse(resp, itemResponse)
 	cfg := config.Get()
@@ -101,7 +101,7 @@ func AfterHTTPRequestHandler(req string, resp *http.Response, method string, htt
 	if IsFailResponse {
 		fmt.Printf("Failed to send HTTP %s Request with status: %s and error: %s\n", httpMethod, resp.Status, failDataRow)
 
-		kafkaMessage := ConvertToErrorMessage(httpMethod, cfg.ShopeeURL, req, failDataRow, resp.Status, time.Now().Format("2006-01-02 15:04:05"))
+		kafkaMessage := ConvertToErrorMessage(httpMethod, url, req, failDataRow, resp.Status, time.Now().Format("2006-01-02 15:04:05"))
 
 		// Publish to Kafka Error Topic
 		config := kafka.WriterConfig{
@@ -137,7 +137,6 @@ func IsFailResponse(resp *http.Response, itemResponse model.ItemResponse) (bool,
 	isFailStatus := (resp.StatusCode < 200 || resp.StatusCode > 299)
 
 	if error != "" {
-		fmt.Println(itemResponse)
 		return true, itemResponse.Message
 	} else if isFailStatus {
 		return true, ""
